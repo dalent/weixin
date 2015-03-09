@@ -9,7 +9,7 @@ import (
 )
 func main(){
   weixin.Init("appKey","appSecret")
-  resp := weixin.GetSignPackage("url")
+  resp,_:= weixin.GetSignPackage("url")
   fmt.Println(resp)
 }
 ```
