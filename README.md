@@ -8,7 +8,8 @@ import (
   "github.com/dalent/weixin"
 )
 func main(){
-  weixin.Init("appKey","appSecret")
+  //指定key，secret，开启自动刷新
+  weixin.Init("appKey","appSecret",true)
   resp,_:= weixin.GetSignPackage("url")
   fmt.Println(resp)
 }

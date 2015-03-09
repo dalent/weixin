@@ -105,3 +105,35 @@ func Min(a, b int) int {
 
 	return a
 }
+func (p *WeiXinAccess) Refresh() error {
+	if err := p.getAccessToken(); err != nil {
+		return err
+	}
+
+	if err := p.getJsApiTicket(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *WeiXinAccess) Init(refresh bool) {
+	//先获得一次,获得失败panic
+	if err := p.Refresh(); err != nil {
+		panic(err)
+	}
+
+	//如果开启了自动刷新，就自动刷新
+	if refresh {
+		go func() {
+			for {
+				if err := p.Refresh(); err != nil {
+					continue
+				}
+				//time.Sleep(10 * time.Second)
+				//两个最少的一半时间刷新应该是够的
+				time.Sleep(time.Second * time.Duration(Min(p.access.ExpireIn, p.ticket.ExpireIn)/2))
+			}
+		}()
+	}
+}

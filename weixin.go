@@ -34,36 +34,8 @@ func GetSignPackage(url string) (*SignPackage, error) {
 	return &SignPackage{appKey, noncestr, timestamp, url, signature[:], str}, nil
 }
 
-func Init(key, secret string) {
+func Init(key, secret string, refresh bool) {
 	appKey = key
 	appSecret = secret
-
-	//先获得一次,获得失败panic
-	if err := Refresh(); err != nil {
-		panic(err)
-	}
-
-	go func() {
-		for {
-			err := Refresh()
-
-			if err != nil {
-				continue
-			}
-			//time.Sleep(10 * time.Second)
-			//两个最少的一半时间刷新应该是够的
-			time.Sleep(time.Second * time.Duration(Min(weiXinAccess.access.ExpireIn, weiXinAccess.ticket.ExpireIn)/2))
-		}
-	}()
-}
-func Refresh() error {
-	if err := weiXinAccess.getAccessToken(); err != nil {
-		return err
-	}
-
-	if err := weiXinAccess.getJsApiTicket(); err != nil {
-		return err
-	}
-
-	return nil
+	GetWeiXinAccess().Init(refresh)
 }

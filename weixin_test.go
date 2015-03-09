@@ -6,7 +6,7 @@ import (
 )
 
 func TestWeixin(_ *testing.T) {
-	Init("", "")
+	Init("", "", true)
 	resp, err := GetSignPackage("http://12.23.45")
 	fmt.Println(resp, err)
 }
