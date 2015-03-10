@@ -31,7 +31,7 @@ type WeiXinAccess struct {
 	access WeiXinToken
 	ticket WeiXinJs
 	//更新信息需要锁
-	mutex sync.Mutex
+	locker sync.RWMutex
 }
 
 //这个结构基本上全局唯一不变的,不需要返回多个副本
@@ -50,6 +50,11 @@ func (p *WeiXinAccess) createNonceStr(length int) string {
 	return str
 }
 
+func (p *WeiXinAccess) getTicket() string {
+	p.locker.RLock()
+	defer p.locker.RUnlock()
+	return p.ticket.Ticket
+}
 func (p *WeiXinAccess) getJsApiTicket() error {
 	response := struct {
 		Code      int    `json:"errcode"`
@@ -67,8 +72,8 @@ func (p *WeiXinAccess) getJsApiTicket() error {
 		return errors.New(response.Msg)
 	}
 
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.locker.Lock()
+	defer p.locker.Unlock()
 	p.ticket.ExpireIn = response.ExpiresIn
 	p.ticket.Ticket = response.Ticket
 	return nil
@@ -90,8 +95,8 @@ func (p *WeiXinAccess) getAccessToken() error {
 		return errors.New("access token get failed")
 	}
 
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.locker.Lock()
+	defer p.locker.Unlock()
 
 	p.access = tmpAccess
 	return nil

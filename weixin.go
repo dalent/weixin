@@ -27,7 +27,7 @@ func GetSignPackage(url string) (*SignPackage, error) {
 	weixin := GetWeiXinAccess()
 	noncestr := weixin.createNonceStr(16)
 	str := fmt.Sprintf("jsapi_ticket=%s&noncestr=%s&timestamp=%d&url=%s",
-		weixin.ticket.Ticket, noncestr, timestamp, url)
+		weixin.getTicket(), noncestr, timestamp, url)
 
 	signature := fmt.Sprintf("%x", sha1.Sum([]byte(str)))
 
